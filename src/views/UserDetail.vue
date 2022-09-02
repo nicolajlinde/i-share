@@ -1,57 +1,133 @@
 ﻿<template>
-  <section>
-    <h1>User detail</h1>
-    <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-    <p>(id: {{ user.id }})</p>
-  </section>
-  <section>
-    <h3>Sum of all</h3>
+  <div class="flex-wrapper">
+    <section id="user-content">
+      <h1 class="user-name-title">{{ fullName }}</h1>
+      <h3>Add expenses</h3>
+      <div class="control-form">
+        <label for="item">Item</label>
+        <input type="text" name="item" v-model="item" />
+      </div>
+      <div class="control-form">
+        <label for="price">Price</label>
+        <input type="number" name="price" v-model="price" @keydown.enter="submitData" />
+      </div>
+      <button @click="submitData">Add expense</button>
+    </section>
 
-  </section>
-  <section>
-    <h3>Add expenses</h3>
-    <div class="control-form">
-      <label for="item">Item</label>
-      <input type="text" name="item" v-model="item">
-    </div>
-    <div class="control-form">
-      <label for="price">Price</label>
-      <input type="number" name="price" v-model="price">
-    </div>
-    <button @click="submitData">Add expense</button>
-    <ul>
-      <li v-for="(expense, key) in userExpenses" :key="key">{{ expense.item }}: {{ expense.price }} kr.</li>
-    </ul>
-  </section>
-
-  <ul style="margin-top: 200px">
-  </ul>
+    <section id="expense-content">
+      <h1 class="expense-title">Expenses</h1>
+      <hr />
+      <div
+        class="expense-list"
+        v-for="(expense, key) in userExpenses"
+        :key="key"
+      >
+        <p><span @click="removeExpense(expense.id)">x</span> {{ expense.item }}</p>
+        <p>{{ expense.price }} kr.</p>
+      </div>
+      <hr />
+      <div class="expense-list">
+        <p>Total</p>
+        <p class="sum-underscore">{{ sumOfUserExpenses }} kr.</p>
+      </div>
+    </section>
+  </div>
 </template>
 
 <script setup>
-import {useStore} from "vuex";
-import {computed, defineProps, ref} from "vue";
+import { useStore } from "vuex";
+import { computed, defineProps, ref } from "vue";
 
-const props = defineProps(['id'])
-const store = useStore()
+const props = defineProps(["id"]);
+const store = useStore();
 
-const item = ref('')
-const price = ref('')
+const item = ref("");
+const price = ref("");
 
 const submitData = () => {
-  store.dispatch('addExpenses', {
+  store.dispatch("addExpenses", {
     item: item.value,
     price: price.value,
-    user_id: props.id
-  })
-  item.value = ''
-  price.value = ''
-}
+    user_id: props.id,
+  });
+  item.value = "";
+  price.value = "";
+};
 
-const user = store.getters.userById(props.id)
-const userExpenses = computed(() => store.getters.sumOfIndividualExpenses(props.id))
+const user = store.getters.userById(props.id);
+const userExpenses = computed(() =>
+  store.getters.sumOfIndividualExpenses(props.id)
+);
+
+const sumOfUserExpenses = computed(() => {
+  const expenses = store.getters.sumOfIndividualExpenses(props.id);
+  let sum = 0;
+  for (let i in expenses) {
+    sum += expenses[i].price;
+  }
+  return sum;
+});
+
+const fullName = computed(() => {
+  return `${user.firstName} ${user.lastName}`;
+});
+
+const removeExpense = (id) => {
+  const expenses = store.state.expensesModule.expenses
+  const expenseIndex = expenses.findIndex(
+    (expenseItem) => expenseItem.id === id
+  )
+  store.state.expensesModule.expenses.splice(expenseIndex, 1)
+}
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Allerta+Stencil&display=swap');
 
+.flex-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+#expense-content,
+#user-content {
+  padding: 30px;
+}
+
+#user-content {
+  flex: 70%;
+}
+
+#expense-content {
+  flex: 30%;
+}
+
+.user-name-title {
+  font-size: 4rem;
+  font-weight: bolder;
+}
+
+.expense-title {
+  text-align: center;
+  font-size: 2.5rem;
+}
+
+.expense-list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.expense-list p {
+  font-family: 'Allerta Stencil', sans-serif;
+  text-transform: uppercase;
+  margin: 0.2rem 0;
+}
+
+hr {
+  border: 1.5px dashed black;
+}
+
+.sum-underscore {
+  border-bottom: 2px dashed #000;
+}
 </style>

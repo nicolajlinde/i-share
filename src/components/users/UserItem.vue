@@ -3,7 +3,7 @@
     <header>
       <img class="thumbnail-img"
            src="https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?k=6&m=1214428300&s=170667a&w=0&h=hMQs-822xLWFz66z3Xfd8vPog333rNFHU6Q_kc9Sues=">
-      <h3>{{ props.data.firstName }} {{ props.data.lastName }}</h3>
+      <h3>{{ fullName }}</h3>
     </header>
     <div>
       <router-link :to="'/users/' + props.data.id" :id="props.data.id" :first-name="props.data.firstName"
@@ -28,6 +28,10 @@ const props = defineProps(['data'])
 const sumOfAll = store.getters.sumOfExpenses
 const sumOfIndividual = store.getters.sumOfIndividualExpenses(props.data.id)
 
+const fullName = computed(() => {
+  return `${props.data.firstName} ${props.data.lastName}`
+})
+
 const calcSum = (data) => {
   let sum = 0
   for (let i in data) {
@@ -38,7 +42,6 @@ const calcSum = (data) => {
 
 const calcWhatIsOwed = computed(() => {
   const usersLength = store.getters.fetchUsers.length
-
   const owes = ((sumOfAll / usersLength) - calcSum(sumOfIndividual)).toFixed(2)
   const i = owes - (owes * 2)
   if (i > 0) {

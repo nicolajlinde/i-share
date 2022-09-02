@@ -1,5 +1,4 @@
 <template>
-
   <section class="thumbnail-container">
     <user-item
         v-for="(data, key) in users" :key="key"
@@ -90,18 +89,6 @@ const sum = store.getters.sumOfExpenses
   margin: 0 auto;
   background-color: #417D57;
   border-radius: 5px;
-}
-input {
-  width: 100%;
-  padding: 10px 0
-}
-
-label {
-  font-size: 1.2rem;
-}
-
-.control-form {
-  margin: 1rem 0;
 }
 
 .wrapper h1 {
