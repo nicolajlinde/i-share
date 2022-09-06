@@ -1,13 +1,19 @@
 ﻿<template>
   <div class="thumbnail">
     <header>
-      <img class="thumbnail-img"
-           src="https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?k=6&m=1214428300&s=170667a&w=0&h=hMQs-822xLWFz66z3Xfd8vPog333rNFHU6Q_kc9Sues=">
+      <img
+        class="thumbnail-img"
+        src="https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?k=6&m=1214428300&s=170667a&w=0&h=hMQs-822xLWFz66z3Xfd8vPog333rNFHU6Q_kc9Sues="
+      />
       <h3>{{ fullName }}</h3>
     </header>
     <div>
-      <router-link :to="'/users/' + props.data.id" :id="props.data.id" :first-name="props.data.firstName"
-                   class="button">
+      <router-link
+        :to="'/users/' + props.data.id"
+        :id="props.data.id"
+        :first-name="props.data.firstName"
+        class="button"
+      >
         Add Expense
       </router-link>
     </div>
@@ -19,38 +25,41 @@
 </template>
 
 <script setup>
-import {computed, defineProps} from "vue";
-import {useStore} from "vuex";
+import { computed, defineProps } from "vue";
+import { useStore } from "vuex";
 
-const store = useStore()
+// Store
+const store = useStore();
+const sumOfAll = store.getters.sumOfExpenses;
+const sumOfIndividual = store.getters.sumOfIndividualExpenses(props.data.id);
+const usersLength = store.getters.fetchUsers.length;
 
-const props = defineProps(['data'])
-const sumOfAll = store.getters.sumOfExpenses
-const sumOfIndividual = store.getters.sumOfIndividualExpenses(props.data.id)
+// Props
+const props = defineProps(["data"]);
 
+// Computed
 const fullName = computed(() => {
-  return `${props.data.firstName} ${props.data.lastName}`
-})
-
-const calcSum = (data) => {
-  let sum = 0
-  for (let i in data) {
-    sum += data[i].price
-  }
-  return sum
-}
+  return `${props.data.firstName} ${props.data.lastName}`;
+});
 
 const calcWhatIsOwed = computed(() => {
-  const usersLength = store.getters.fetchUsers.length
-  const owes = ((sumOfAll / usersLength) - calcSum(sumOfIndividual)).toFixed(2)
-  const i = owes - (owes * 2)
+  const owes = (sumOfAll / usersLength - calcSum(sumOfIndividual)).toFixed(2);
+  const i = owes - owes * 2;
   if (i > 0) {
-    return `<span style="color: #55C97F;">+${i} kr.</span>`
+    return `<span style="color: #55C97F;">+${i} kr.</span>`;
   } else {
-    return `<span style="color: #C94640;" id="owing">${i} kr.</span>`
+    return `<span style="color: #C94640;" id="owing">${i} kr.</span>`;
   }
-})
+});
 
+// Functions
+const calcSum = (data) => {
+  let sum = 0;
+  for (let i in data) {
+    sum += data[i].price;
+  }
+  return sum;
+};
 </script>
 
 <style scoped>
@@ -71,18 +80,17 @@ const calcWhatIsOwed = computed(() => {
   border-radius: 5px;
   margin: 15px 0;
   color: #fff;
-  background-color: #7DC999;
+  background-color: #7dc999;
   font-weight: normal;
   text-decoration: none;
 }
 
 .button:hover,
 .button:active {
-  background-color: #7D4441;
+  background-color: #7d4441;
 }
 
 .expenses p {
   margin: 1rem 0 0.5rem 0;
 }
-
 </style>

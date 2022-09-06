@@ -3,6 +3,9 @@
     <section id="user-content">
       <h1 class="user-name-title">{{ fullName }}</h1>
       <h3>Add expenses</h3>
+      <div v-if="!formIsValid.value">
+        <p style="color: red">{{ showErrors }}</p>
+      </div>
       <div class="control-form">
         <label for="item">Item</label>
         <input type="text" name="item" v-model="item" />
@@ -61,6 +64,7 @@ const user = store.getters.userById(props.id);
 // Variables
 const item = ref("");
 const price = ref("");
+const error = ref(null);
 let formIsValid = true;
 
 // Functions
@@ -73,22 +77,34 @@ const removeExpense = (id, name) => {
   }
 };
 
-const submitData = () => {
+const submitData = async() => {
   if (item.value === "" && price.value === "") {
     formIsValid = false;
+    error.value = "You must fill out the input fields. Please try again.";
     console.log(formIsValid);
+    console.log(error.value);
   } else {
-    store.dispatch("addExpenses", {
-      item: item.value,
-      price: price.value,
-      user_id: props.id,
-    });
-    item.value = "";
-    price.value = "";
+    try {
+      await store.dispatch("addExpenses", {
+        item: item.value,
+        price: price.value,
+        user_id: props.id,
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      item.value = "";
+      price.value = "";
+      error.value = null
+    }
   }
 };
 
 // Computed
+const showErrors = computed(() => {
+  return error.value
+})
+
 const userExpenses = computed(() =>
   store.getters.sumOfIndividualExpenses(props.id)
 );

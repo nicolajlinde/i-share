@@ -9,6 +9,9 @@
   <section id="add-more-users">
     <div class="wrapper">
       <h1>Add users</h1>
+      <div v-if="!formIsValid.value">
+        <p style="color: darkred">{{ showErrors }}</p>
+      </div>
       <div class="control-form">
         <label for="name">First Name</label>
         <input type="text" name="firstName" v-model="firstName" />
@@ -29,7 +32,7 @@
 
 <script setup>
 import { useStore } from "vuex";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import UserItem from "@/components/users/UserItem";
 
 // Store
@@ -40,15 +43,29 @@ const sum = store.getters.sumOfExpenses;
 // Variables
 const firstName = ref("");
 const lastName = ref("");
+const error = ref(null)
+let formIsValid = true;
+
+// Computed
+const showErrors = computed(() => {
+  return error.value
+})
 
 // Functions
 const submitData = () => {
-  store.dispatch("addUser", {
-    firstName: firstName.value,
-    lastName: lastName.value,
-  });
-  firstName.value = "";
-  lastName.value = "";
+  if (firstName.value === "" && lastName.value === "") {
+    formIsValid = false;
+    error.value = "You must fill out the input fields. Please try again.";
+    console.log(formIsValid);
+    console.log(error.value);
+  } else {
+    store.dispatch("addUser", {
+      firstName: firstName.value,
+      lastName: lastName.value,
+    });
+    firstName.value = "";
+    lastName.value = "";
+  }
 };
 </script>
 
