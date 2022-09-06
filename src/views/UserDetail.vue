@@ -9,7 +9,12 @@
       </div>
       <div class="control-form">
         <label for="price">Price</label>
-        <input type="number" name="price" v-model="price" @keydown.enter="submitData" />
+        <input
+          type="number"
+          name="price"
+          v-model="price"
+          @keydown.enter="submitData"
+        />
       </div>
       <button @click="submitData">Add expense</button>
     </section>
@@ -17,13 +22,21 @@
     <section id="expense-content">
       <h1 class="expense-title">Expenses</h1>
       <hr />
-      <div
-        class="expense-list"
-        v-for="(expense, key) in userExpenses"
-        :key="key"
-      >
-        <p><span @click="removeExpense(expense.id)">x</span> {{ expense.item }}</p>
-        <p>{{ expense.price }} kr.</p>
+      <div v-if="userExpenses.length > 0">
+        <div
+          class="expense-list"
+          v-for="(expense, key) in userExpenses"
+          :key="key"
+        >
+          <p>
+            <span @click="removeExpense(expense.id, expense.item)">x</span>
+            {{ expense.item }}
+          </p>
+          <p>{{ expense.price }} kr.</p>
+        </div>
+      </div>
+      <div v-else class="expense-list">
+        <p>No expenses added.</p>
       </div>
       <hr />
       <div class="expense-list">
@@ -38,23 +51,44 @@
 import { useStore } from "vuex";
 import { computed, defineProps, ref } from "vue";
 
+// Props
 const props = defineProps(["id"]);
-const store = useStore();
 
+// Store
+const store = useStore();
+const user = store.getters.userById(props.id);
+
+// Variables
 const item = ref("");
 const price = ref("");
+let formIsValid = true;
 
-const submitData = () => {
-  store.dispatch("addExpenses", {
-    item: item.value,
-    price: price.value,
-    user_id: props.id,
-  });
-  item.value = "";
-  price.value = "";
+// Functions
+const removeExpense = (id, name) => {
+  const dialog = confirm(`Want to delete '${name}'?`);
+  if (dialog) {
+    store.dispatch("removeExpense", {
+      id: id,
+    });
+  }
 };
 
-const user = store.getters.userById(props.id);
+const submitData = () => {
+  if (item.value === "" && price.value === "") {
+    formIsValid = false;
+    console.log(formIsValid);
+  } else {
+    store.dispatch("addExpenses", {
+      item: item.value,
+      price: price.value,
+      user_id: props.id,
+    });
+    item.value = "";
+    price.value = "";
+  }
+};
+
+// Computed
 const userExpenses = computed(() =>
   store.getters.sumOfIndividualExpenses(props.id)
 );
@@ -71,18 +105,10 @@ const sumOfUserExpenses = computed(() => {
 const fullName = computed(() => {
   return `${user.firstName} ${user.lastName}`;
 });
-
-const removeExpense = (id) => {
-  const expenses = store.state.expensesModule.expenses
-  const expenseIndex = expenses.findIndex(
-    (expenseItem) => expenseItem.id === id
-  )
-  store.state.expensesModule.expenses.splice(expenseIndex, 1)
-}
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Allerta+Stencil&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Allerta+Stencil&display=swap");
 
 .flex-wrapper {
   display: flex;
@@ -118,7 +144,7 @@ const removeExpense = (id) => {
 }
 
 .expense-list p {
-  font-family: 'Allerta Stencil', sans-serif;
+  font-family: "Allerta Stencil", sans-serif;
   text-transform: uppercase;
   margin: 0.2rem 0;
 }

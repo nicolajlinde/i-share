@@ -1,9 +1,6 @@
 <template>
   <section class="thumbnail-container">
-    <user-item
-        v-for="(data, key) in users" :key="key"
-        :data="data"
-    ></user-item>
+    <user-item v-for="(data, key) in users" :key="key" :data="data"></user-item>
   </section>
   <section id="sum" v-if="sum > 0">
     <h1>Total</h1>
@@ -14,11 +11,16 @@
       <h1>Add users</h1>
       <div class="control-form">
         <label for="name">First Name</label>
-        <input type="text" name="firstName" v-model="firstName">
+        <input type="text" name="firstName" v-model="firstName" />
       </div>
       <div class="control-form">
         <label for="lastName">Last name</label>
-        <input type="text" name="lastName" @keydown.enter="submitData" v-model="lastName">
+        <input
+          type="text"
+          name="lastName"
+          @keydown.enter="submitData"
+          v-model="lastName"
+        />
       </div>
       <button @click="submitData">Add user</button>
     </div>
@@ -26,28 +28,28 @@
 </template>
 
 <script setup>
-import {useStore} from 'vuex'
-import {ref} from "vue";
+import { useStore } from "vuex";
+import { ref } from "vue";
 import UserItem from "@/components/users/UserItem";
 
-const store = useStore()
+// Store
+const store = useStore();
+const users = store.getters["fetchUsers"];
+const sum = store.getters.sumOfExpenses;
 
-const firstName = ref('')
-const lastName = ref('')
+// Variables
+const firstName = ref("");
+const lastName = ref("");
 
-const users = store.getters['fetchUsers']
-
+// Functions
 const submitData = () => {
-  store.dispatch('addUser', {
+  store.dispatch("addUser", {
     firstName: firstName.value,
-    lastName: lastName.value
-  })
-  firstName.value = ''
-  lastName.value = ''
-}
-
-const sum = store.getters.sumOfExpenses
-
+    lastName: lastName.value,
+  });
+  firstName.value = "";
+  lastName.value = "";
+};
 </script>
 
 <style lang="scss" scoped>
@@ -69,7 +71,7 @@ const sum = store.getters.sumOfExpenses
 
 #sum h1,
 #sum h2 {
-  margin: .2rem;
+  margin: 0.2rem;
 }
 
 .thumbnail-container {
@@ -79,7 +81,7 @@ const sum = store.getters.sumOfExpenses
 }
 
 #add-more-users {
- margin: 100px 0;
+  margin: 100px 0;
 }
 
 .wrapper {
@@ -87,7 +89,7 @@ const sum = store.getters.sumOfExpenses
   color: #e9e9e9;
   width: 50%;
   margin: 0 auto;
-  background-color: #417D57;
+  background-color: #417d57;
   border-radius: 5px;
 }
 
@@ -95,8 +97,7 @@ const sum = store.getters.sumOfExpenses
   font-size: 3rem;
   font-weight: bolder;
   text-align: center;
-  margin: .5rem 0;
-  color: #7DC999;
+  margin: 0.5rem 0;
+  color: #7dc999;
 }
-
 </style>
